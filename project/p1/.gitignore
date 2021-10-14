@@ -1,0 +1,7 @@
+*.txt
+*.tar
+.vscode
+env
+mumsh
+mumsh_debug
+mumsh_memory_check
