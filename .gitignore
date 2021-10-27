@@ -1,5 +1,5 @@
 *.zip
-*.rar
+*.tar
 *.db
 *.psv
 *.vscode

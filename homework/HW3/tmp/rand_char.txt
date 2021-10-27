@@ -1,5 +1,0 @@
-b=Z
-c=D
-a=A
-d=T
-s=F
