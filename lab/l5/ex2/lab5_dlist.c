@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 typedef struct node_t{
-    char *k;
+    const char *k;
     dlistValue v;
     struct node *next;
 } node;
@@ -46,13 +46,12 @@ void dlistAppend(dlist this, const char* key, dlistValue value){
 }
 
 static int random_sort(void* x, void* y){
-    int result = strcmp(((node *) y)->v.strValue, ((node *) x)->v.strValue);
-    int rnd = result * rand() % 2;
-    if(rnd == 1) return rnd;
-    else return -1;
+    assert(x != NULL);
+    assert(y != NULL);
+    return (((rand()) % 2) * 2 - 1);
 }
 
-int (*compare[3][3]) (const void *, const void *) = {
+int (*compare[3][3]) (void *, void *) = {
     {random_sort, random_sort, random_sort},
     {random_sort, random_sort, random_sort},
     {random_sort, random_sort, random_sort}

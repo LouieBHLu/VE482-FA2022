@@ -34,30 +34,29 @@ void* listSearch(llist* l, const char* k){
 }
 
 int int_inc(const void* x, const void* y){
-    return *((int *)(((node *) x)->data)) - *((int *)(((node *) y)->data));
+    return *((int*)x) > *((int*)y);
 }
 
 int int_dec(const void* x, const void* y){
-    return *((int *)(((node *) y)->data)) - *((int *)(((node *) x)->data));
+    return *((int*)x) <= *((int*)y);
 }
 
 int double_inc(const void* x, const void* y){
-    double result = *((double *)(((node *) x)->data)) - *((double *)(((node *) y)->data));
-    return (int) result;
+    return *((double*)x) > *((double*)y);
 }
 
 int double_dec(const void* x, const void* y){
-    double result = *((double *)(((node *) y)->data)) - *((double *)(((node *) x)->data));
-    return (int) result;
-}
-
-int char_inc(const void* x, const void* y){
-    return strcmp((char *)(((node *) x)->data), (char *)(((node *) y)->data));
+    return *((double*)x) <= *((double*)y);
 }
 
 int char_dec(const void* x, const void* y){
-    return strcmp((char *)(((node *) y)->data), (char *)(((node *) x)->data));
+    return !strcmp((char*)x, (char*)y);
 }
+
+int char_inc(const void* x, const void* y){
+    return strcmp((char*)x, (char*)y);
+}
+
 
 int random_sort(const void* x, const void* y){
     assert(x != NULL);
@@ -90,7 +89,7 @@ void sortNodes(llist* l, type* t){
     for(int i = 1;i < l->size; i++){
         tmp = nodes[i];
         j = i - 1;
-        while(j >= 0 && (cmp[t->dataType][t->sortingType](nodes[j], tmp) >= 0)){
+        while(j >= 0 && (cmp[t->dataType][t->sortingType](nodes[j]->data, tmp->data) >= 0)){
             nodes[j + 1] = nodes[j];
             j--;
         }
@@ -148,13 +147,13 @@ void listDes(llist* l){
         tmp = tmp->next;
         free(lastNode);    
     }
-    free(l);
+    // free(l);
 }
 
 void readType(type* t, const char* argv[]){
     t->dataType = NULL_TYPE;
     t->sortingType = NULL_TYPE;
-    char* tmpStr = malloc(sizeof(char) * MAX_STRING);
+    char tmpStr[100];
     memset(tmpStr, 0, MAX_STRING);
     strcpy(tmpStr, argv[1]);
     char* token = strtok(tmpStr, "_.");
@@ -168,7 +167,7 @@ void readType(type* t, const char* argv[]){
     else if(!strcmp(argv[2], "inc")) t->sortingType = INC_SORT;
     else if(!strcmp(argv[2], "dec")) t->sortingType = DEC_SORT;
 
-    free(tmpStr);
+    // free(tmpStr);
 }
 
 void readFile(type* t, const char* argv[]){
@@ -177,7 +176,7 @@ void readFile(type* t, const char* argv[]){
     char* tmpData;
     char* line = (char *)malloc(sizeof(char) * 2 * MAX_STRING);
     memset(line, 0, 2 * MAX_STRING);
-    fprintf(stderr, "%s", line);
+    // fprintf(stderr, "%s", line);
 
     llist l;
     list(&l);
@@ -208,6 +207,9 @@ void readFile(type* t, const char* argv[]){
         char* k = (char*)malloc(sizeof(char) * MAX_STRING);
         memset(k, 0, MAX_KEY);
         strcpy(k, tmpKey);
+
+        // fprintf(stderr, "%s=%\n", k, d);
+
         insertNode(&l, k, d);
         memset(line, 0, 2 * MAX_STRING);
     }
