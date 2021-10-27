@@ -1,5 +1,5 @@
+b=Z
 c=D
 a=A
 d=T
-b=Z
 s=F

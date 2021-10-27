@@ -5,10 +5,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <time.h>
 
 #define MAX_KEY 1024
 #define MAX_STRING 1024
-// TODO: change name
+
 #define INT_TYPE 0
 #define CHAR_TYPE 1
 #define DOUBLE_TYPE 2
@@ -42,9 +43,9 @@ void* listSearch(llist* l, const char* k);
 
 void listDes(llist* l);
 
-void readType(type* t, char* argv[]);
+void readType(type* t, const char* argv[]);
 
-void readFile(type* t, char* argv[]);
+void readFile(type* t, const char* argv[]);
 
 void insertNode(llist* l, char* k, void* d);
 
@@ -53,4 +54,5 @@ void listDes(llist* l);
 void sortNodes(llist* l, type* t);
 
 void writeFile(llist*l, type* t);
+
 #endif

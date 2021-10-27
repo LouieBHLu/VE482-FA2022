@@ -42,11 +42,13 @@ int int_dec(void* x, void* y){
 }
 
 int double_inc(void* x, void* y){
-    return *((double *)(((node *) x)->data)) - *((double *)(((node *) y)->data));
+    double result = *((double *)(((node *) x)->data)) - *((double *)(((node *) y)->data));
+    return (int) result;
 }
 
 int double_dec(void* x, void* y){
-    return *((double *)(((node *) y)->data)) - *((double *)(((node *) x)->data));
+    double result = *((double *)(((node *) y)->data)) - *((double *)(((node *) x)->data));
+    return (int) result;
 }
 
 int char_inc(void* x, void* y){
@@ -58,13 +60,14 @@ int char_dec(void* x, void* y){
 }
 
 int random_sort(void* x, void* y){
-    int rnd = rand() % 2;
+    int result = strcmp((char *)(((node *) y)->data), (char *)(((node *) x)->data));
+    int rnd = result * rand() % 2;
     if(rnd == 1) return rnd;
     else return -1;
 }
 
 // Referring: https://www.geeksforgeeks.org/function-pointer-in-c/
-int (*compare[3][3]) (void* x, void* y) = {
+int (*cmp[3][3]) (void* x, void* y) = {
     {int_inc, int_dec, random_sort},
     {char_inc, char_dec, random_sort},
     {double_inc, double_dec, random_sort}
@@ -73,7 +76,9 @@ int (*compare[3][3]) (void* x, void* y) = {
 void sortNodes(llist* l, type* t){
     if(l->size == 0) return;
     
-    node* nodes[l->size];
+    node **nodes = (node **)malloc(sizeof(node *) * (unsigned long)(l->size));
+    for(int i = 0; i < l->size - 1; i++) nodes[i] = NULL; 
+
     int i = 0;
     node* tmp = l->head;
     while(tmp != NULL){
@@ -82,20 +87,34 @@ void sortNodes(llist* l, type* t){
         tmp = tmp->next;
     }
 
+    
+    // for(int i = 0; i < l->size - 1; i++){
+    //     for(int j = 0; j < l->size - 1 - i; j++){
+    //         if(cmp[t->dataType][t->sortingType](nodes[j+1], nodes[j]) <= 0){
+    //             tmp = nodes[j];
+    //             nodes[j] = nodes[j+1];
+    //             nodes[j+1] = tmp;
+    //         }
+    //     }
+    // }
+    
     tmp = NULL;
-    for(int i = 0; i < l->size - 1; i++){
-        for(int j = 0; j < l->size - 1 - i; j++){
-            if(compare[t->dataType][t->sortingType](nodes[j+1], nodes[j]) <= 0){
-                tmp = nodes[j];
-                nodes[j] = nodes[j+1];
-                nodes[j+1] = tmp;
-            }
+    int j;
+    for(int i = 1;i < l->size; i++){
+        tmp = nodes[i];
+        j = i - 1;
+        while(j >= 0 && (cmp[t->dataType][t->sortingType](nodes[j], tmp) >= 0)){
+            nodes[j + 1]=nodes[j];
+            j--;
         }
+        nodes[j + 1]=tmp;
     }
 
     l->head = nodes[0];
     for(int i = 0; i < l->size - 1; i++) nodes[i]->next = nodes[i+1];
     nodes[l->size - 1]->next = NULL;
+
+    free(nodes);
 }
 
 void writeFile(llist* l, type* t){
@@ -141,7 +160,7 @@ void listDes(llist* l){
     }
 }
 
-void readType(type* t, char* argv[]){
+void readType(type* t, const char* argv[]){
     t->dataType = NULL_TYPE;
     t->sortingType = NULL_TYPE;
     char* tmpStr = malloc(sizeof(char) * MAX_STRING);
@@ -152,7 +171,7 @@ void readType(type* t, char* argv[]){
 
     if(!strcmp(token, "int")) t->dataType = INT_TYPE;
     else if(!strcmp(token, "double")) t->dataType = DOUBLE_TYPE;
-    else if(!strcmp(token, "char")) t->dataType = CHAR_TYPE;
+    else if(!strcmp(token, "char*")) t->dataType = CHAR_TYPE;
 
     if(!strcmp(argv[2], "rand")) t->sortingType = RAND_SORT;
     else if(!strcmp(argv[2], "inc")) t->sortingType = INC_SORT;
@@ -161,7 +180,7 @@ void readType(type* t, char* argv[]){
     free(tmpStr);
 }
 
-void readFile(type* t, char* argv[]){
+void readFile(type* t, const char* argv[]){
     FILE *f = fopen(argv[1], "r");
     char* tmpKey;
     char* tmpData;
@@ -177,13 +196,10 @@ void readFile(type* t, char* argv[]){
         tmpData = strtok(NULL, "\n");
 
         // Create a void pointer to be casted by any data type
-        void* d;
+        void* d = NULL;
         if(t->dataType == INT_TYPE){
-            // printf("Int data type\n");
-            // printf("%s|%s|%d\n",tmpKey,tmpData,atoi(tmpData));
             d = (void *)malloc(sizeof(int));
             *(int *) d = atoi(tmpData);
-            // printf("%d\n", *(int *)d);
         }
         else if(t->dataType == CHAR_TYPE){
             d = (void *)malloc(sizeof(char) * MAX_STRING);
@@ -199,7 +215,7 @@ void readFile(type* t, char* argv[]){
         char* k = (char*)malloc(sizeof(char) * MAX_STRING);
         memset(k, 0, MAX_KEY);
         strcpy(k, tmpKey);
-        printf("Finish one line, and insert node\n");
+        // printf("Finish one line, and insert node\n");
         
         insertNode(&l, k, d);
         memset(line, 0, MAX_STRING);
@@ -214,7 +230,7 @@ void readFile(type* t, char* argv[]){
 
 
 int main(int argc, char const *argv[]){
-    srand(time(NULL));
+    srand((unsigned int) time(NULL));
 
     if(argc != 3){
         printf("Error: wrong arguments number!\n");
