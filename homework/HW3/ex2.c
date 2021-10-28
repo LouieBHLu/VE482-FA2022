@@ -57,13 +57,12 @@ int double_dec(const void* x, const void* y){
 
 int char_dec(const void* x, const void* y){
     int rank = strcmp((char*)x, (char*)y);
-    return rank<0 ? 1 : rank==0 ? 0 : 0;
+    return rank < 0 ? 1 : rank == 0 ? 0 : 0;
 }
 
 int char_inc(const void* x, const void* y){
     return strcmp((char*)x, (char*)y);
 }
-
 
 int random_sort(const void* x, const void* y){
     assert(x != NULL);
@@ -82,7 +81,7 @@ int (*cmp[3][3]) (const void* x, const void* y) = {
 //     if (t->dataType == CHAR_TYPE){
 //         node* tmp = l->head;
 //         while(tmp != NULL){
-//             fprintf(stderr, "%s:%s ",tmp->key, (char*)tmp->data);
+//             fprintf(stderr, "%s:%s",tmp->key, (char*)tmp->data);
 //             tmp=tmp->next;
 //         }
 //     }
@@ -109,7 +108,7 @@ void sortNodes(llist* l, type* t){
         // fprintf(stderr, "[%d] ",i);
         tmp = nodes[i];
         j = i - 1;
-        while(j >= 0 && (cmp[t->dataType][t->sortingType](nodes[j]->data, tmp->data) > 0)){ //FIXME: boundary
+        while(j >= 0 && (cmp[t->dataType][t->sortingType](nodes[j]->data, tmp->data) > 0)){
             // fprintf(stderr, "a ");
             nodes[j + 1] = nodes[j];
             j--;
@@ -121,7 +120,7 @@ void sortNodes(llist* l, type* t){
     for(int i = 0; i < l->size - 1; i++) nodes[i]->next = nodes[i+1];
     nodes[l->size - 1]->next = NULL;
 
-    // free(nodes);
+    free(nodes);
     fprintf(stderr,"done\n");
 }
 

@@ -27,8 +27,3 @@ compress:
 test:
 	./ex3 rand_char*.txt inc
 	./ex3 rand_int.txt inc
-
-# qh:
-# 	clang -std=gnu11 -O2 -Wall -Wextra -Werror -pedantic -Wno-unused-result -Wconversion -Wvla -o ex3 ex3.c
-
-# ./ex3_memory_check samples/rand_char*.txt inc
