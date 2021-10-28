@@ -27,6 +27,7 @@ typedef struct node{
 
 typedef struct list{
     node* head;
+    node* last;
     int size;
 } llist;
 

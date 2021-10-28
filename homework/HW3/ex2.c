@@ -2,15 +2,21 @@
 
 void list(llist* l){
     l->head = NULL;
+    l->last = NULL;
     l->size = 0;
 }
 
 void addNode(llist* l, node* n){
-    if(l->head == NULL) l->head = n;
+    if(l->head == NULL){
+        l->head = n;
+        l->last = n;
+    }
     else{
-        node* tmp = l->head;
-        while(tmp->next != NULL) tmp = tmp->next;
-        tmp->next = n;
+        // node* tmp = l->head;
+        // while(tmp->next != NULL) tmp = tmp->next;
+        // tmp->next = n;
+        l->last->next = n;
+        l->last = n;
     }
     l->size++;
 }
@@ -46,11 +52,12 @@ int double_inc(const void* x, const void* y){
 }
 
 int double_dec(const void* x, const void* y){
-    return *((double*)x) <= *((double*)y);
+    return *((double*)x) < *((double*)y);
 }
 
 int char_dec(const void* x, const void* y){
-    return !strcmp((char*)x, (char*)y);
+    int rank = strcmp((char*)x, (char*)y);
+    return rank<0 ? 1 : rank==0 ? 0 : 0;
 }
 
 int char_inc(const void* x, const void* y){
@@ -71,7 +78,19 @@ int (*cmp[3][3]) (const void* x, const void* y) = {
     {double_inc, double_dec, random_sort}
 };
 
+// static void printNodes(llist* l, type* t){
+//     if (t->dataType == CHAR_TYPE){
+//         node* tmp = l->head;
+//         while(tmp != NULL){
+//             fprintf(stderr, "%s:%s ",tmp->key, (char*)tmp->data);
+//             tmp=tmp->next;
+//         }
+//     }
+// }
+
 void sortNodes(llist* l, type* t){
+    // printNodes(l,t);
+    fprintf(stderr, "sorting elements... ");
     if(l->size == 0) return;
     
     node **nodes = (node **)malloc(sizeof(node *) * (unsigned long)(l->size));
@@ -83,13 +102,15 @@ void sortNodes(llist* l, type* t){
         nodes[i++] = tmp;
         tmp = tmp->next;
     }
-    
+
     tmp = NULL;
     int j;
     for(int i = 1;i < l->size; i++){
+        // fprintf(stderr, "[%d] ",i);
         tmp = nodes[i];
         j = i - 1;
-        while(j >= 0 && (cmp[t->dataType][t->sortingType](nodes[j]->data, tmp->data) >= 0)){
+        while(j >= 0 && (cmp[t->dataType][t->sortingType](nodes[j]->data, tmp->data) > 0)){ //FIXME: boundary
+            // fprintf(stderr, "a ");
             nodes[j + 1] = nodes[j];
             j--;
         }
@@ -100,7 +121,8 @@ void sortNodes(llist* l, type* t){
     for(int i = 0; i < l->size - 1; i++) nodes[i]->next = nodes[i+1];
     nodes[l->size - 1]->next = NULL;
 
-    free(nodes);
+    // free(nodes);
+    fprintf(stderr,"done\n");
 }
 
 void writeFile(const llist* l, type* t){
@@ -117,7 +139,7 @@ void writeFile(const llist* l, type* t){
     else if(t->dataType == DOUBLE_TYPE) strcat(outFile, "double.txt");
     else strcat(outFile, "char*.txt");
 
-    printf("writing %s\n", outFile);
+    fprintf(stderr, "writing %s... ", outFile);
     FILE* f = fopen(outFile, "w");
 
     if(l->head == NULL){
@@ -133,10 +155,12 @@ void writeFile(const llist* l, type* t){
     }
 
     fclose(f);
+    fprintf(stderr,"done\n");
     // free(outFile);
 }
 
 void listDes(llist* l){
+    fprintf(stderr,"freeing list\n");
     if(l->size == 0) return;
 
     node* tmp = l->head;
@@ -154,7 +178,7 @@ void readType(type* t, const char* argv[]){
     t->dataType = NULL_TYPE;
     t->sortingType = NULL_TYPE;
     char tmpStr[100];
-    memset(tmpStr, 0, MAX_STRING);
+    memset(tmpStr, 0, 100);
     strcpy(tmpStr, argv[1]);
     char* token = strtok(tmpStr, "_.");
     token = strtok(NULL, "_.");
@@ -180,12 +204,13 @@ void readFile(type* t, const char* argv[]){
 
     llist l;
     list(&l);
-    printf("reading %s\n",argv[1]);
+    fprintf(stderr, "reading %s\n",argv[1]);
 
-    while(fgets(line, MAX_STRING, f) != NULL){
+    while(fgets(line, 2*MAX_STRING, f) != NULL){
+        // fprintf(stderr,"%s",line);
         tmpKey = strtok(line, "=");
-        tmpData = strtok(NULL, "\n");
-
+        tmpData = strtok(NULL, "\n\0 ");
+        if(tmpData==NULL) fprintf(stderr,"[null tmpData!] tmpKey=%s\n",tmpKey);
         // Create a void pointer to be casted by any data type
         void* d = NULL;
         if(t->dataType == INT_TYPE){
@@ -199,23 +224,23 @@ void readFile(type* t, const char* argv[]){
             *(double *) d = v;
         }
         else{
-            d = (void *)malloc(sizeof(char) * MAX_STRING);
-            memset(d, 0, MAX_STRING);
+            d = (void *)malloc(sizeof(char) * 1024+1);
+            if(sizeof(tmpData)>1024) fprintf(stderr,"[dataSz=%lu] ",(sizeof(tmpData)+1));
+            memset(d, 0, (1024+1));
             strcpy((char *) d, tmpData);
         }
         
-        char* k = (char*)malloc(sizeof(char) * MAX_STRING);
-        memset(k, 0, MAX_KEY);
+        char* k = (char*)malloc(sizeof(char) * (1024+1));
+        if(sizeof(tmpData)>1024) fprintf(stderr,"[keySz=%lu] ",(sizeof(tmpKey)+1));
+        memset(k, 0, (1024+1));
         strcpy(k, tmpKey);
 
         // fprintf(stderr, "%s=%\n", k, d);
 
         insertNode(&l, k, d);
-        memset(line, 0, 2 * MAX_STRING);
+        // memset(line, 0, 2 * MAX_STRING);
     }
-
-    free(line);
-    printf("sorting elements\n");
+    if(line!=NULL) free(line);
     sortNodes(&l, t);
     writeFile(&l, t);
     listDes(&l);
@@ -227,7 +252,7 @@ int main(int argc, char const *argv[]){
     srand((unsigned int) time(NULL));
 
     if(argc != 3){
-        printf("Error: wrong arguments number!\n");
+        fprintf(stderr, "Error: wrong arguments number!\n");
         return 0;
     }
     type t;
