@@ -407,7 +407,7 @@ ssize_t dadfs_write(struct kiocb * kiocb, struct iov_iter * iov_iter)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
 	bh = sb_bread(filp->f_path.dentry->d_inode->i_sb, sfs_inode->data_block_number);
 #else
-	bh = sb_bread(kiocb->ki_filp->f_inode->i_sb, sfs_inode->data_block_numbe);
+	bh = sb_bread(kiocb->ki_filp->f_inode->i_sb, sfs_inode->data_block_number);
 #endif
 
 	if (!bh) {
@@ -775,7 +775,7 @@ static int dadfs_load_journal(struct super_block *sb, int devnum)
 	struct dadfs_super_block *sfs_sb = DADFS_SB(sb);
 
 	dev = new_decode_dev(devnum);
-	printk(KERN_INFO "Journal device is: %s\n", __bdevname(dev, b));
+	printk(KERN_INFO "Journal device is: %s\n", bdevname(dev, b));
 
 	bdev = blkdev_get_by_dev(dev, FMODE_READ|FMODE_WRITE|FMODE_EXCL, sb);
 	if (IS_ERR(bdev))
