@@ -24,11 +24,13 @@ A **data store** is basically a place for storing collections of data, such as a
 
 Mysql             | Oracle 
 :-------------------------:|:-------------------------:
-![](C:\Users\Lenovo\Desktop\lab6_pre\mysql.png)  | ![](C:\Users\Lenovo\Desktop\lab6_pre\oracle.png) 
+![](/home/pastrol/VE482-FA2022/lab/l7/lab6_pre/mysql.png)  | ![](/home/pastrol/VE482-FA2022/lab/l7/lab6_pre/oracle.png) 
 
 ##### **Column-Oriented data stores**
 
 **Apache HBase Database**, which is a NoSql, fault tolerant, distributed database as a part of the Apache Hadoop ecosystem. It supports very fast querying with an extremely large data size.
+
+![](/home/pastrol/VE482-FA2022/lab/l7/lab6_pre/pandas.png)
 
 ## Lemondb
 
