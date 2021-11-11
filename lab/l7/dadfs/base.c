@@ -14,10 +14,7 @@
 #include <linux/jbd2.h>
 #include <linux/parser.h>
 #include <linux/blkdev.h>
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
 #include <linux/uio.h>
-#endif
 
 #include "sblock.h"
 
@@ -479,7 +476,7 @@ ssize_t dadfs_write(struct kiocb * kiocb, struct iov_iter * iov_iter)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
 	sfs_inode->file_size = *ppos;
 #else
-	sfs_inode->file_size = kiocb->ki_pos;
+	sfs_inode->file_size = (kiocb->ki_pos);
 #endif
 
 	retval = dadfs_inode_save(sb, sfs_inode);
@@ -490,8 +487,9 @@ ssize_t dadfs_write(struct kiocb * kiocb, struct iov_iter * iov_iter)
 	mutex_unlock(&dadfs_inodes_mgmt_lock);
 	return len;
 #else
-	mutex_unlock(&dadfs_inodes_mgmt_lock);
-	return retval;
+		;
+		mutex_unlock(&dadfs_inodes_mgmt_lock);
+		return retval;
 	}
 	mutex_unlock(&dadfs_inodes_mgmt_lock);
 	return iov_iter->count;
