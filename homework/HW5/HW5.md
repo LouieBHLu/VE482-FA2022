@@ -30,10 +30,8 @@
 3. Yes. One possible order is: $\left[\begin{matrix}P_2, P_4, P_1, P_3, P_5\end{matrix}\right]$ .
 
    Calls in detail are as follows:
-
-```
-TODO
-```
+   
+   332 -> (P2) -> 210 -> 532 -> (P4) -> 521 -> 743 -> (P1) -> 000 -> 753 -> (P3) -> 153 -> A55 -> (P5) -> 624 -> A57
 
 ## Ex. 3 - Banker's Algorithm
 
@@ -236,11 +234,14 @@ void read_lock(){
    We may let a writer to take control of the reader_lock s.t. it can prevent other readers from reading the database until the writer finished its job. In this case, the writer does not need to wait for a long time.
 
 ```c
-// TODO
+int count = 0; // reader count
+semaphore count_lock = 1; // control the reader count
+semaphore db_lock = 1; // control the database
+
 void write_lock(){
   down(reader_lock);
   down(db_lock);
-} semaphore reader_lock = 1;
+} 
 
 void write_unlock(){
   up(reader_lock);
@@ -252,8 +253,8 @@ void read_lock(){
   down(count_lock);
   count++;
   if(count == 1) down(db_lock);
-  up(count_lock);
   up(reader_lock);
+  up(count_lock);
 }
 
 void read_unlock(){
